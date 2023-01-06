@@ -5,7 +5,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include "log_mgr.h"
+#include "log.h"
+
+//============================================================================
+// basic log functions
+//============================================================================
 
 #define MAX_LOG_LINES     10000
 #define LOG_NAME_LEN      256
@@ -15,12 +19,12 @@
 typedef struct log
 {
     FILE *hnd;
-    char name[LOG_NAME_LEN];
+    char  name[LOG_NAME_LEN];
     unsigned char mode;
-    int lines;
+    unsigned int  lines;
 } log_t;
 
-void get_date_time_string(char *str, int str_size)
+void get_date_time_string(char *str, unsigned int str_size, char *fmt)
 {
     time_t curr_time = 0;
     struct tm *pt = NULL;
@@ -31,7 +35,7 @@ void get_date_time_string(char *str, int str_size)
     pt = localtime(&curr_time);
     assert(pt);
 
-    snprintf(str, str_size, "%04d%02d%02d%02d%02d%02d",
+    snprintf(str, str_size, fmt,
              pt->tm_year + 1900, pt->tm_mon + 1, pt->tm_mday,
              pt->tm_hour, pt->tm_min, pt->tm_sec);
 }
@@ -39,7 +43,7 @@ void get_date_time_string(char *str, int str_size)
 void add_one_trace(FILE *hnd, const char *trace)
 {
     char date_time[DATA_TIME_STR_LEN];
-    get_date_time_string(date_time, DATA_TIME_STR_LEN);
+    get_date_time_string(date_time, DATA_TIME_STR_LEN, "%04d%02d%02d %02d:%02d:%02d");
 
     // printf("%s %s", date_time, trace); // print to screen
     fprintf(hnd, "%s %s", date_time, trace);
@@ -48,7 +52,7 @@ void add_one_trace(FILE *hnd, const char *trace)
 FILE *create_log_file(const char *log_name)
 {
     char date_time[DATA_TIME_STR_LEN];
-    get_date_time_string(date_time, DATA_TIME_STR_LEN);
+    get_date_time_string(date_time, DATA_TIME_STR_LEN, "%04d%02d%02d_%02d%02d%02d");
 
     char name[LOG_NAME_LEN];
     snprintf(name, LOG_NAME_LEN, "%s_%s.log", log_name, date_time);
@@ -124,51 +128,42 @@ void log_add_one_trace(void *log, void *buf)
     }
 }
 
-void log_trace(void *log, const char *fmt, ...)
-{
-    char buf[LOG_BUF_LEN];
-    va_list ap;
+//============================================================================
+// log module manager functions
+//============================================================================
 
-    va_start(ap, fmt);
-    vsnprintf(buf, LOG_BUF_LEN, fmt, ap);
-    va_end(ap);
+log_mgr_t g_log;
 
-    log_add_one_trace(log, buf);
-}
-
-
-log_mgr_t g_log_mgr;
-
-void log_mgr_set_level(unsigned int mid, int level)
+void log_set_level(unsigned int mid, int level)
 {
     if (mid >= MIDS_NUM)
     {
         return;
     }
     
-    g_log_mgr.level[mid] = level;
+    g_log.level[mid] = level;
 
     return;
 }
 
-void log_mgr_set_name(unsigned int mid, const char *name)
+void log_set_name(unsigned int mid, const char *name)
 {
     if (mid >= MIDS_NUM)
     {
         return;
     }
     
-    strncpy(g_log_mgr.name[mid], name, MNAME_SIZE);
-    g_log_mgr.name[mid][MNAME_SIZE - 1] = '\0';
+    strncpy(g_log.name[mid], name, MNAME_SIZE);
+    g_log.name[mid][MNAME_SIZE - 1] = '\0';
 
     return;
 }
 
-int log_mgr_init(const char *log_name)
+int log_init(const char *log_name)
 {
-    memset(&g_log_mgr, 0, sizeof(log_mgr_t));
-    g_log_mgr.log_hnd = log_create(log_name);
-    if (g_log_mgr.log_hnd)
+    memset(&g_log, 0, sizeof(log_mgr_t));
+    g_log.hnd = log_create(log_name);
+    if (g_log.hnd)
     {
         return 0;  // success
     }
@@ -176,29 +171,29 @@ int log_mgr_init(const char *log_name)
     return -1; // failed
 }
 
-void log_mgr_destroy(void)
+void log_destroy(void)
 {
-    if (g_log_mgr.log_hnd)
+    if (g_log.hnd)
     {
-        log_close(g_log_mgr.log_hnd);
-        g_log_mgr.log_hnd = NULL;
+        log_close(g_log.hnd);
+        g_log.hnd = NULL;
     }
 }
 
-void log_mgr_trace(unsigned int mid, unsigned char level, const char *fmt, ...)
+void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...)
 {
-    if (level > g_log_mgr.level[mid])
+    if (level > g_log.level[mid])
     {
         return;
     }
     
-    #define BUF_LEN           1024
-    char buf[BUF_LEN];
+    char buf[LOG_BUF_LEN];
     va_list ap;
+
     va_start(ap, fmt);
-    vsnprintf(buf, BUF_LEN, fmt, ap);
+    vsnprintf(buf, LOG_BUF_LEN, fmt, ap);
     va_end(ap);
 
-    log_add_one_trace(g_log_mgr.log_hnd, buf);
+    log_add_one_trace(g_log.hnd, buf);
 }
 
