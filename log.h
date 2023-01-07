@@ -34,7 +34,7 @@ static inline char *log_get_name(unsigned int mid)
 	return g_log.name[mid];
 }
 
-int log_init(const char *log_name);
+int log_init(const char *log_name, unsigned int mode, unsigned int max_lines);
 void log_destroy(void);
 void log_set_level(unsigned int mid, int level);
 void log_set_name(unsigned int mid, const char *name);

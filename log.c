@@ -11,7 +11,6 @@
 // basic log functions
 //============================================================================
 
-#define MAX_LOG_LINES     10000
 #define LOG_NAME_LEN      256
 #define LOG_BUF_LEN       1024
 #define DATA_TIME_STR_LEN 40
@@ -21,7 +20,10 @@ typedef struct log
     FILE *hnd;
     char  name[LOG_NAME_LEN];
     unsigned char mode;
+    unsigned char max_lines;
+
     unsigned int  lines;
+    unsigned int  count; // number of log file changes
 } log_t;
 
 void get_date_time_string(char *str, unsigned int str_size, char *fmt)
@@ -40,33 +42,50 @@ void get_date_time_string(char *str, unsigned int str_size, char *fmt)
              pt->tm_hour, pt->tm_min, pt->tm_sec);
 }
 
-void add_one_trace(FILE *hnd, const char *trace)
+void add_one_trace(log_t *log, const char *trace)
 {
     char date_time[DATA_TIME_STR_LEN];
     get_date_time_string(date_time, DATA_TIME_STR_LEN, "%04d%02d%02d %02d:%02d:%02d");
 
-    // printf("%s %s", date_time, trace); // print to screen
+    if (log->mode & LOG_TO_FILE)
+    {
+        fprintf(log->hnd, "%s %s", date_time, trace);
+        log->lines++;
+    }
+
+    if (log->mode & LOG_TO_SCREEN)
+    {
+        printf("%s %s", date_time, trace);
+    }
+}
+
+void add_only_file_trace(FILE *hnd, const char *trace)
+{
+    char date_time[DATA_TIME_STR_LEN];
+
+    get_date_time_string(date_time, DATA_TIME_STR_LEN, "%04d%02d%02d %02d:%02d:%02d");
     fprintf(hnd, "%s %s", date_time, trace);
 }
 
-FILE *create_log_file(const char *log_name)
+FILE *create_log_file(const char *log_name, unsigned int count)
 {
     char date_time[DATA_TIME_STR_LEN];
-    get_date_time_string(date_time, DATA_TIME_STR_LEN, "%04d%02d%02d_%02d%02d%02d");
-
     char name[LOG_NAME_LEN];
-    snprintf(name, LOG_NAME_LEN, "%s_%s.log", log_name, date_time);
+
+    get_date_time_string(date_time, DATA_TIME_STR_LEN, "%04d%02d%02d_%02d%02d%02d");
+    snprintf(name, LOG_NAME_LEN, "%s_%s_%04u.log", log_name, date_time, count);
     FILE *hnd = fopen(name, "wb+");
     if (!hnd)
     {
         return NULL;
     }
 
-    add_one_trace(hnd, "log file created!!!\n");
+    add_only_file_trace(hnd, "log file created!!!\n");
+
     return hnd;
 }
 
-void *log_create(const char *log_name)
+void *log_create(const char *log_name, unsigned int mode, unsigned int max_lines)
 {
     log_t *log = (log_t *)malloc(sizeof(log_t));
     if (!log)
@@ -74,15 +93,24 @@ void *log_create(const char *log_name)
         return NULL;
     }
 
-    log->hnd = create_log_file(log_name);
-    if (!log->hnd)
+    memset(log, 0, sizeof(log_t));
+	
+    if (mode & LOG_TO_FILE)
     {
-        free(log);
-        return NULL;
+        log->hnd = create_log_file(log_name, log->count);
+        if (!log->hnd)
+        {
+            free(log);
+            return NULL;
+        }
+
+        strncpy(log->name, log_name, sizeof(log->name));
     }
 
-    strncpy(log->name, log_name, sizeof(log->name));
+    log->mode = mode;
+    log->max_lines = max_lines;
     log->lines = 0;
+    log->count++;
 
     return log;
 }
@@ -97,12 +125,23 @@ void log_close(void *log)
 
     if (tmp_log->hnd)
     {
-        add_one_trace(tmp_log->hnd, "log file closed!!!\n");
+        add_only_file_trace(tmp_log->hnd, "log file closed!!!\n");
         fclose(tmp_log->hnd);
         tmp_log->hnd = NULL;
     }
 
     free(tmp_log);
+}
+
+void log_set_max_lines(void *log, unsigned int max_lines)
+{
+    log_t *tmp_log = (log_t *)log;
+    if (!tmp_log)
+    {
+        return;
+    }
+
+    tmp_log->max_lines = max_lines;
 }
 
 void log_add_one_trace(void *log, void *buf)
@@ -113,17 +152,19 @@ void log_add_one_trace(void *log, void *buf)
         return;
     }
 
-    add_one_trace(tmp_log->hnd, buf);
-    tmp_log->lines++;
-    if (tmp_log->lines >= MAX_LOG_LINES)
+    add_one_trace(tmp_log, buf);
+    if ((tmp_log->lines >= tmp_log->max_lines) && (tmp_log->mode & LOG_TO_FILE))
     {
-        FILE *hnd = create_log_file(tmp_log->name);
+        FILE *hnd = create_log_file(tmp_log->name, tmp_log->count);
         if (hnd)
         {
-            add_one_trace(tmp_log->hnd, "log file closed!!!\n");
+            add_only_file_trace(tmp_log->hnd, "log file closed!!!\n");
+
             fclose(tmp_log->hnd);
             tmp_log->hnd = hnd;
+
             tmp_log->lines = 0;
+            tmp_log->count++;
         }
     }
 }
@@ -159,10 +200,10 @@ void log_set_name(unsigned int mid, const char *name)
     return;
 }
 
-int log_init(const char *log_name)
+int log_init(const char *log_name, unsigned int mode, unsigned int max_lines)
 {
     memset(&g_log, 0, sizeof(log_mgr_t));
-    g_log.hnd = log_create(log_name);
+    g_log.hnd = log_create(log_name, mode, max_lines);
     if (g_log.hnd)
     {
         return 0;  // success
