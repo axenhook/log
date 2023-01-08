@@ -1,17 +1,19 @@
+/*
+* from https://github.com/axenhook/log.git
+*/
 
 
 #ifndef __LOG_H__
 #define __LOG_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define LOG_TO_NULL 0x00
-#define LOG_TO_FILE 0x01
-#define LOG_TO_SCREEN 0x02
-#define LOG_TO_SCNFILE (LOG_TO_FILE | LOG_TO_SCREEN)
+#define LOG_TO_NULL        0x00
+#define LOG_TO_FILE        0x01
+#define LOG_TO_SCREEN      0x02
+#define LOG_TO_SCNFILE     (LOG_TO_FILE | LOG_TO_SCREEN)
 
 #define MNAME_SIZE 32
 #define MIDS_NUM 256
@@ -44,9 +46,9 @@ void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...);
 #define MODULE_ID(mid) static unsigned int g_mid = (mid)
 
 #define SET_MODULE_LEVEL(level) log_set_level(g_mid, level)
-#define GET_MODULE_LEVEL(level) log_get_level(g_mid)
+#define GET_MODULE_LEVEL() log_get_level(g_mid)
 #define SET_MODULE_NAME(name) log_set_name(g_mid, name)
-#define GET_MODULE_NAME(name) log_get_name(g_mid)
+#define GET_MODULE_NAME() log_get_name(g_mid)
 
 #if 1
 

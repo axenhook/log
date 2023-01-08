@@ -9,9 +9,9 @@
 #include "../log.h"
 #include "threads_group.h"
 
-MODULE_ID(9);
+MODULE_ID(21);
 
-int g_exit_flag = 0;
+extern int g_exit_flag;
 
 static void print_log(int level, unsigned int thread_id, unsigned int cnt)
 {
@@ -53,52 +53,8 @@ static void *thread_test(void *arg, unsigned int thread_id)
     return NULL;
 }
 
-void *start_threads_group_main(void)
+void *start_threads_group_module_b(void)
 {
-    SET_MODULE_NAME("test_main");
-    return threads_group_start(20, thread_test, NULL, "test_main");
-}
-
-void stop_threads_group(void *group)
-{
-    threads_group_stop(group, 1);
-}
-
-void trigger_stop(int param)
-{
-    g_exit_flag = 1;
-}
-
-void *start_threads_group_module_a(void);
-void *start_threads_group_module_b(void);
-
-int main(int argc, char *argv[])
-{
-    g_exit_flag = 0;
-
-    signal(SIGINT, trigger_stop);
-    // signal(SIGKILL, trigger_stop);
-    signal(SIGTERM, trigger_stop);
-
-    printf("test log start\n");
-
-    int ret = log_init("test_multi_threads", LOG_TO_FILE | LOG_TO_SCREEN, 12345);
-    assert(ret == 0);
-
-    void *group_main = start_threads_group_main();
-    void *group_module_a = start_threads_group_module_a();
-    void *group_module_b = start_threads_group_module_b();
-    
-	os_sleep_ms(3*1000);
-	
-	trigger_stop(1);
-    stop_threads_group(group_main);
-    stop_threads_group(group_module_a);
-    stop_threads_group(group_module_b);
-
-    log_destroy();
-
-    printf("test log finished\n");
-
-    return 0;
+    SET_MODULE_NAME("test_module_b");
+    return threads_group_start(20, thread_test, NULL, "test_module_b");
 }
