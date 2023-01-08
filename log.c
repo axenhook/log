@@ -94,7 +94,7 @@ void *log_create(const char *log_name, unsigned int mode, unsigned int max_lines
     }
 
     memset(log, 0, sizeof(log_t));
-	
+
     if (mode & LOG_TO_FILE)
     {
         log->hnd = create_log_file(log_name, log->count);
@@ -181,7 +181,7 @@ void log_set_level(unsigned int mid, int level)
     {
         return;
     }
-    
+
     g_log.level[mid] = level;
 
     return;
@@ -193,7 +193,7 @@ void log_set_name(unsigned int mid, const char *name)
     {
         return;
     }
-    
+
     strncpy(g_log.name[mid], name, MNAME_SIZE);
     g_log.name[mid][MNAME_SIZE - 1] = '\0';
 
@@ -206,9 +206,9 @@ int log_init(const char *log_name, unsigned int mode, unsigned int max_lines)
     g_log.hnd = log_create(log_name, mode, max_lines);
     if (g_log.hnd)
     {
-        return 0;  // success
+        return 0; // success
     }
-    
+
     return -1; // failed
 }
 
@@ -227,7 +227,7 @@ void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...)
     {
         return;
     }
-    
+
     char buf[LOG_BUF_LEN];
     va_list ap;
 
@@ -237,4 +237,3 @@ void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...)
 
     log_add_one_trace(g_log.hnd, buf);
 }
-
