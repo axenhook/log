@@ -15,33 +15,17 @@ extern "C" {
 #define LOG_TO_SCREEN      0x02
 #define LOG_TO_SCNFILE     (LOG_TO_FILE | LOG_TO_SCREEN)
 
-#define MNAME_SIZE 32
-#define MIDS_NUM 256
-
-typedef struct log_mgr
-{
-    char name[MIDS_NUM][MNAME_SIZE];
-    int level[MIDS_NUM];
-    void *hnd;
-} log_mgr_t;
-
-extern log_mgr_t g_log;
-
-static inline int log_get_level(unsigned int mid)
-{
-    return g_log.level[mid];
-}
-
-static inline char *log_get_name(unsigned int mid)
-{
-    return g_log.name[mid];
-}
-
-int log_init(const char *log_name, unsigned int mode, unsigned int max_lines);
-void log_destroy(void);
 void log_set_level(unsigned int mid, int level);
+int log_get_level(unsigned int mid);
+char *log_get_name(unsigned int mid);
 void log_set_name(unsigned int mid, const char *name);
 void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...);
+
+//============================================================================
+// external API functions
+//============================================================================
+int log_init(const char *log_name, unsigned int mode, unsigned int max_lines);
+void log_destroy(void);
 
 #define MODULE_ID(mid) static unsigned int g_mid = (mid)
 

@@ -238,7 +238,27 @@ void log_trace(void *log, const char *fmt, ...)
 // log module manager functions
 //============================================================================
 
+#define MNAME_SIZE 32
+#define MIDS_NUM 256
+
+typedef struct log_mgr
+{
+    char name[MIDS_NUM][MNAME_SIZE];
+    int level[MIDS_NUM];
+    void *hnd;
+} log_mgr_t;
+
 log_mgr_t g_log;
+
+int log_get_level(unsigned int mid)
+{
+    return g_log.level[mid];
+}
+
+char *log_get_name(unsigned int mid)
+{
+    return g_log.name[mid];
+}
 
 void log_set_level(unsigned int mid, int level)
 {
