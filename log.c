@@ -28,6 +28,8 @@
 #include <windows.h>
 
 #define atomic_inc(x)           InterlockedIncrement(x)
+#define atomic_read(x)          (*(x))
+
 
 typedef CRITICAL_SECTION        os_mutex_t;
 #define os_mutex_init(mutex)    InitializeCriticalSection(mutex)
@@ -40,6 +42,7 @@ typedef CRITICAL_SECTION        os_mutex_t;
 #include <pthread.h>
 
 #define atomic_inc(x)           __sync_fetch_and_add(x, 1)
+#define atomic_read(x)          (*(x))
 
 typedef pthread_mutex_t         os_mutex_t;
 #define os_mutex_init(mutex)    pthread_mutex_init(mutex, NULL)
@@ -199,7 +202,7 @@ void log_add_one_trace(void *log, void *buf)
     {
         os_mutex_lock(&tmp_log->mutex);
         
-        if (tmp_log->lines >= tmp_log->max_lines) // check again
+        if (atomic_read(&tmp_log->lines) >= tmp_log->max_lines) // check again
         {
             FILE *hnd = create_log_file(tmp_log->name, tmp_log->count);
             if (hnd)
