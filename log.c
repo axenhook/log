@@ -250,17 +250,7 @@ typedef struct log_mgr
 
 log_mgr_t g_log;
 
-int log_get_level(unsigned int mid)
-{
-    return g_log.level[mid];
-}
-
-char *log_get_name(unsigned int mid)
-{
-    return g_log.name[mid];
-}
-
-void log_set_level(unsigned int mid, int level)
+void set_module_level(unsigned int mid, int level)
 {
     if (mid >= MIDS_NUM)
     {
@@ -272,7 +262,12 @@ void log_set_level(unsigned int mid, int level)
     return;
 }
 
-void log_set_name(unsigned int mid, const char *name)
+int get_module_level(unsigned int mid)
+{
+    return g_log.level[mid];
+}
+
+void set_module_name(unsigned int mid, const char *name)
 {
     if (mid >= MIDS_NUM)
     {
@@ -284,6 +279,12 @@ void log_set_name(unsigned int mid, const char *name)
 
     return;
 }
+
+char *get_module_name(unsigned int mid)
+{
+    return g_log.name[mid];
+}
+
 
 int log_init(const char *log_name, unsigned int mode, unsigned int max_lines)
 {
