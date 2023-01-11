@@ -100,5 +100,7 @@ int main(int argc, char *argv[])
 
     printf("test log finished\n");
 
+	system("pause");
+
     return 0;
 }
