@@ -221,9 +221,7 @@ void log_add_one_trace(void *log, void *buf)
     }
 }
 
-#if 0
-
-void log_trace(void *log, const char *fmt, ...)
+void log_trace_internal(void *log, const char *fmt, ...)
 {
     char buf[LOG_BUF_LEN];
     va_list ap;
@@ -234,8 +232,6 @@ void log_trace(void *log, const char *fmt, ...)
 
     log_add_one_trace(log, buf);
 }
-
-#endif
 
 //============================================================================
 // log module manager functions
