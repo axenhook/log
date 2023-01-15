@@ -17,12 +17,12 @@ static void print_log(int level, unsigned int thread_id, unsigned int cnt)
 {
         log_set_level(level);
         
-        LOG_DEBUG("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
-        LOG_INFO("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
-        LOG_WARN("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
-        LOG_ERROR("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
-        LOG_EMERG("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
-        LOG_EVENT("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
+        log_debug("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
+        log_info("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
+        log_warn("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
+        log_error("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
+        log_emerg("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
+        log_event("Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d, cnt %d\n", thread_id, cnt);
 }
 
 static void *thread_test(void *arg, unsigned int thread_id)

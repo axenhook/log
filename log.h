@@ -36,53 +36,53 @@ void log_destroy(void);
 
 #if 1
 
-#define LOG_DEBUG(fmt, ...)                                              \
+#define log_debug(fmt, ...)                                              \
     log_trace(g_mid, 5, "[DEBUG][%s:%s:%s:%d]: " fmt, log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_INFO(fmt, ...)                                               \
+#define log_info(fmt, ...)                                               \
     log_trace(g_mid, 4, "[INFO ][%s:%s:%s:%d]: " fmt, log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_WARN(fmt, ...)                                               \
+#define log_warn(fmt, ...)                                               \
     log_trace(g_mid, 3, "[WARN ][%s:%s:%s:%d]: " fmt, log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_ERROR(fmt, ...)                                              \
+#define log_error(fmt, ...)                                              \
     log_trace(g_mid, 2, "[ERROR][%s:%s:%s:%d]: " fmt, log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_EMERG(fmt, ...)                                              \
+#define log_emerg(fmt, ...)                                              \
     log_trace(g_mid, 1, "[EMERG][%s:%s:%s:%d]: " fmt, log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_EVENT(fmt, ...)                                              \
+#define log_event(fmt, ...)                                              \
     log_trace(g_mid, 0, "[EVENT][%s:%s:%s:%d]: " fmt, log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #else
 
-#define LOG_DEBUG(fmt, ...)                                                                                        \
+#define log_debug(fmt, ...)                                                                                        \
     log_trace(g_mid, 5, "[DEBUG][%lld][%s:%s:%s:%d]: " fmt, (unsigned long long)pthread_self(), log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_INFO(fmt, ...)                                                                                         \
+#define log_info(fmt, ...)                                                                                         \
     log_trace(g_mid, 4, "[INFO ][%lld][%s:%s:%s:%d]: " fmt, (unsigned long long)pthread_self(), log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_WARN(fmt, ...)                                                                                         \
+#define log_warn(fmt, ...)                                                                                         \
     log_trace(g_mid, 3, "[WARN ][%lld][%s:%s:%s:%d]: " fmt, (unsigned long long)pthread_self(), log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_ERROR(fmt, ...)                                                                                        \
+#define log_error(fmt, ...)                                                                                        \
     log_trace(g_mid, 2, "[ERROR][%lld][%s:%s:%s:%d]: " fmt, (unsigned long long)pthread_self(), log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_EMERG(fmt, ...)                                                                                        \
+#define log_emerg(fmt, ...)                                                                                        \
     log_trace(g_mid, 1, "[EMERG][%lld][%s:%s:%s:%d]: " fmt, (unsigned long long)pthread_self(), log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-#define LOG_EVENT(fmt, ...)                                                                                        \
+#define log_event(fmt, ...)                                                                                        \
     log_trace(g_mid, 0, "[EVENT][%lld][%s:%s:%s:%d]: " fmt, (unsigned long long)pthread_self(), log_get_name(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
