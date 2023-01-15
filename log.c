@@ -158,79 +158,48 @@ void *log_create(const char *log_name, unsigned int mode, unsigned int max_lines
     return log;
 }
 
-void log_close(void *log)
+void log_close(log_t *log)
 {
-    log_t *tmp_log = (log_t *)log;
-    if (!tmp_log)
-    {
-        return;
-    }
+    assert(log);
 
-    if (tmp_log->hnd)
+    if (log->hnd)
     {
-        add_only_file_trace(tmp_log->hnd, "log file closed!!!\n");
-        fclose(tmp_log->hnd);
-        tmp_log->hnd = NULL;
+        add_only_file_trace(log->hnd, "log file closed!!!\n");
+        fclose(log->hnd);
+        log->hnd = NULL;
     }
     
-    os_mutex_destroy(&tmp_log->mutex);
+    os_mutex_destroy(&log->mutex);
 
-    free(tmp_log);
+    free(log);
 }
 
-void log_set_max_lines(void *log, unsigned int max_lines)
+void log_add_one_trace(log_t *log, void *buf)
 {
-    log_t *tmp_log = (log_t *)log;
-    if (!tmp_log)
-    {
-        return;
-    }
+    assert(log);
 
-    tmp_log->max_lines = max_lines;
-}
-
-void log_add_one_trace(void *log, void *buf)
-{
-    log_t *tmp_log = (log_t *)log;
-    if (!tmp_log)
+    add_one_trace(log, buf);
+    if ((log->lines >= log->max_lines) && (log->mode & LOG_TO_FILE))
     {
-        return;
-    }
-
-    add_one_trace(tmp_log, buf);
-    if ((tmp_log->lines >= tmp_log->max_lines) && (tmp_log->mode & LOG_TO_FILE))
-    {
-        os_mutex_lock(&tmp_log->mutex);
+        os_mutex_lock(&log->mutex);
         
-        if (atomic_read(&tmp_log->lines) >= tmp_log->max_lines) // check again
+        if (atomic_read(&log->lines) >= log->max_lines) // check again
         {
-            FILE *hnd = create_log_file(tmp_log->name, tmp_log->count);
+            FILE *hnd = create_log_file(log->name, log->count);
             if (hnd)
             {
-                add_only_file_trace(tmp_log->hnd, "log file closed!!!\n");
+                add_only_file_trace(log->hnd, "log file closed!!!\n");
     
-                fclose(tmp_log->hnd);
-                tmp_log->hnd = hnd;
+                fclose(log->hnd);
+                log->hnd = hnd;
     
-                tmp_log->lines = 0;
-                tmp_log->count++;
+                log->lines = 0;
+                log->count++;
             }
         }
         
-        os_mutex_unlock(&tmp_log->mutex);
+        os_mutex_unlock(&log->mutex);
     }
-}
-
-void log_trace_internal(void *log, const char *fmt, ...)
-{
-    char buf[LOG_BUF_LEN];
-    va_list ap;
-
-    va_start(ap, fmt);
-    vsnprintf(buf, LOG_BUF_LEN, fmt, ap);
-    va_end(ap);
-
-    log_add_one_trace(log, buf);
 }
 
 //============================================================================
@@ -238,12 +207,12 @@ void log_trace_internal(void *log, const char *fmt, ...)
 //============================================================================
 
 #define MNAME_SIZE 32
-#define MIDS_NUM 256
+#define MIDS_NUM   64
 
 typedef struct log_mgr
 {
-    char name[MIDS_NUM][MNAME_SIZE];
-    int level[MIDS_NUM];
+    char  name[MIDS_NUM][MNAME_SIZE];
+    int   level[MIDS_NUM];
     void *hnd;
 } log_mgr_t;
 
@@ -309,6 +278,11 @@ void log_destroy(void)
 void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...)
 {
     if (level > g_log.level[mid])
+    {
+        return;
+    }
+    
+    if (!g_log.hnd)
     {
         return;
     }
