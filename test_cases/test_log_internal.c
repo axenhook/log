@@ -16,13 +16,13 @@ extern void  log_close(void *log);
 
 #if 1
 
-#define LOG_TRACE(log_hnd, fmt, ...)        \
+#define log_trace(log_hnd, fmt, ...)        \
     log_trace_internal(log_hnd, "[%s:%s:%d]: "fmt, \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 #else
 
-#define LOG_TRACE(log_hnd, fmt, ...)        \
+#define log_trace(log_hnd, fmt, ...)        \
     log_trace_internal(log_hnd, "[%lld][%s:%s:%d]: "fmt, (unsigned long long)pthread_self(), \
               __FILE__, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
@@ -32,7 +32,7 @@ void test_log(void *log)
 {
     for (unsigned int i = 0; i < 1000; i++) 
     {
-        LOG_TRACE(log, "Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d\n", i);
+        log_trace(log, "Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d\n", i);
     }
 }
 
@@ -79,7 +79,7 @@ void *thread_test(void *arg, unsigned int thread_id)
             break;
         }
 
-        LOG_TRACE(arg, "Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d\n", i++);
+        log_trace(arg, "Test very1 very2 very3 very4 very5 very6 very7 very8 very9 very10 very11 very12 very13 very14 very15 very16 long %d\n", i++);
 
         // usleep(100 * 1000);
     }
