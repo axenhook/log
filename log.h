@@ -19,11 +19,13 @@ void log_trace(unsigned int mid, unsigned char level, const char *fmt, ...);
 //============================================================================
 // external API functions
 //============================================================================
+// the value define of @mode in log_init function
 #define LOG_TO_NULL        0x00
 #define LOG_TO_FILE        0x01
 #define LOG_TO_SCREEN      0x02
 #define LOG_TO_SCNFILE     (LOG_TO_FILE | LOG_TO_SCREEN)
 
+// @mode is defined by LOG_TO_xxx macros
 int log_init(const char *log_name, unsigned int mode, unsigned int max_lines);
 void log_destroy(void);
 

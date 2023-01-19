@@ -3,7 +3,7 @@ CXX = g++
 AR = ar
 LD = ld
 
-CFLAGS = -g -Wall -I./ -I../ -std=c99
+CFLAGS = -g -Wall -I./ -I../ -std=gnu99
 
 POBJS = 
 
@@ -16,7 +16,7 @@ TARGET_ALL = $(TEST_LOG)
 all: $(TARGET_ALL)
 
 $(TEST_LOG):
-	gcc -o $@ $(TEST_LOG_SRC) $(CFLAGS)
+	gcc -o $@ $(TEST_LOG_SRC) $(CFLAGS) -lpthread
 	
 clean:
 	rm -f *.o ../*.o $(TARGET_ALL)
